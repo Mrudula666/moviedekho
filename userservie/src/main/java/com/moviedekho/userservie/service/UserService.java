@@ -1,11 +1,13 @@
 package com.moviedekho.userservie.service;
 
 
-import com.moviedekho.userservie.entity.User;
+import com.moviedekho.userservie.model.request.UserRequest;
+import com.moviedekho.userservie.model.response.UserLoginResponse;
+import com.moviedekho.userservie.model.response.UserResponse;
 
 public interface UserService {
 
-    public User register(User user);
+    public UserResponse register(UserRequest userRequest) throws Exception;
 
-    public User authenticate(String username, String password);
+    public UserLoginResponse authenticate(String username, String password);
 }
