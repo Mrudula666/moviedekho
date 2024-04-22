@@ -1,11 +1,13 @@
 package com.moviedekho.movieservice.serviceimpl;
 
+import com.mongodb.DuplicateKeyException;
 import com.moviedekho.movieservice.document.MovieDocument;
 import com.moviedekho.movieservice.model.request.MovieRequest;
 import com.moviedekho.movieservice.model.response.GenericResponse;
 import com.moviedekho.movieservice.model.response.MovieResponse;
 import com.moviedekho.movieservice.repository.MovieRepository;
 import com.moviedekho.movieservice.service.MovieService;
+import com.moviedekho.movieservice.exceptions.MovieAlreadyExistsException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -75,17 +77,25 @@ public class MovieServiceImpl implements MovieService {
 
     @Override
     public MovieResponse addMovie(MovieRequest movieRequest) {
+        if(!isValidRequest(movieRequest)){
+            throw new MovieAlreadyExistsException("A movie with the given details already exists.");
+        }
        MovieDocument  movieDocument =  mapMovieDocument(movieRequest);
         MovieDocument savedDocument;
         try {
             savedDocument = movieRepository.save(movieDocument);
-            if (savedDocument != null){
-                return getMovieResponse(savedDocument, movieDocument);
-            }
+            return getMovieResponse(savedDocument, movieDocument);
+        } catch (DuplicateKeyException e) {
+            throw new MovieAlreadyExistsException("A movie with the given details already exists.");
         } catch (Exception e) {
             throw new RuntimeException("Failed to save movie: " + e.getMessage(), e);
         }
-        return null;
+    }
+
+    private boolean isValidRequest(MovieRequest movieRequest) {
+        List<MovieDocument> movieDetails = movieRepository.findByTitleContainingIgnoreCase(movieRequest.getTitle());
+        return movieDetails.isEmpty();
+
     }
 
     private MovieResponse getMovieResponse(MovieDocument savedDocument, MovieDocument movieDocument) {

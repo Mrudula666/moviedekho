@@ -23,4 +23,5 @@ public class MovieDocument {
     private String streamLink;
     private String moviePoster;
 
+
 }

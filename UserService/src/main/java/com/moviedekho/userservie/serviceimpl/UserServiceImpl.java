@@ -2,6 +2,7 @@ package com.moviedekho.userservie.serviceimpl;
 
 import com.moviedekho.userservie.entity.RoleEntity;
 import com.moviedekho.userservie.entity.UserEntity;
+import com.moviedekho.userservie.enums.RoleName;
 import com.moviedekho.userservie.enums.SubscriptionPlan;
 import com.moviedekho.userservie.exception.UserAlreadyExistsException;
 import com.moviedekho.userservie.model.request.UserRequest;
@@ -18,6 +19,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -67,6 +69,10 @@ public class UserServiceImpl implements UserService {
             response.setSubscriptionPlan(userEntity.getSubscriptionPlan());
             response.setUsername(userEntity.getUsername());
             response.setDateOfBirth(userEntity.getDateOfBirth().toString());
+            Set<RoleName> roleNames = userEntity.getRoles().stream()
+                    .map(RoleEntity::getName)
+                    .collect(Collectors.toSet());
+            response.setRoleNames(roleNames);
         }
         return response;
     }
@@ -107,6 +113,28 @@ public class UserServiceImpl implements UserService {
         return createUserLoginResponse(jwtToken, userEntity);
     }
 
+    @Override
+    public UserLoginResponse getUserDetails(String username) {
+        Optional<UserEntity> userResultOptional = userRepository.findByUsername(username);
+        if(userResultOptional.isPresent()){
+            UserEntity user = userResultOptional.get();
+            UserLoginResponse userResponse = new UserLoginResponse();
+            userResponse.setMessage("User Details Fetched Successfully");
+            userResponse.setGender(user.getGender());
+            userResponse.setCountry(user.getCountry());
+            userResponse.setEmail(user.getEmail());
+            userResponse.setUsername(user.getUsername());
+            userResponse.setMobileNumber(user.getMobileNumber());
+            userResponse.setDateOfBirth(user.getDateOfBirth());
+            Set<RoleName> roleNames = user.getRoles().stream()
+                    .map(RoleEntity::getName)
+                    .collect(Collectors.toSet());
+            userResponse.setRoleNames(roleNames);
+            return userResponse;
+        }
+        return null;
+    }
+
     private UserLoginResponse createUserLoginResponse(String jwtToken, UserEntity userEntity) {
 
         UserLoginResponse loginResponse = new UserLoginResponse();
@@ -119,6 +147,11 @@ public class UserServiceImpl implements UserService {
         loginResponse.setEmail(userEntity.getEmail());
         loginResponse.setGender(userEntity.getGender());
         loginResponse.setMessage("Login Success");
+        Set<RoleName> roleNames = userEntity.getRoles().stream()
+                .map(RoleEntity::getName)
+                .collect(Collectors.toSet());
+        loginResponse.setRoleNames(roleNames);
+
 
         return loginResponse;
     }

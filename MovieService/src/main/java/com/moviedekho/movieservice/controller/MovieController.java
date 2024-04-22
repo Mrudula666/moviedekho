@@ -8,12 +8,14 @@ import com.moviedekho.movieservice.service.MovieService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/movie")
+@CrossOrigin(origins = {"http://localhost:4200"})
 public class MovieController {
 
     private final MovieService movieService;
@@ -24,24 +26,28 @@ public class MovieController {
     }
 
     @GetMapping("/getAllMovies")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
     public ResponseEntity<List<MovieDocument>> getAllMovies() {
         List<MovieDocument> movies = movieService.getAllMovies();;
         return new ResponseEntity<>(movies, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
     public ResponseEntity<MovieDocument> getMovieById(@PathVariable String id) {
         MovieDocument movie = movieService.getMovieById(id);
         return movie != null ? ResponseEntity.ok(movie) : ResponseEntity.notFound().build();
     }
 
     @PostMapping("/addMovieDetails")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<MovieResponse> createMovie(@RequestBody MovieRequest movie) {
         MovieResponse savedMovie = movieService.addMovie(movie);
         return new ResponseEntity<>(savedMovie, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<MovieDocument> updateMovie(@PathVariable String id, @RequestBody MovieRequest movie) throws Exception {
 
         MovieDocument existingMovie = movieService.getMovieById(id, movie);
@@ -50,6 +56,7 @@ public class MovieController {
     }
 
     @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<GenericResponse> deleteMovie(@PathVariable String id) throws Exception {
 
         GenericResponse genericResponse =  movieService.deleteMovie(id);
@@ -59,6 +66,7 @@ public class MovieController {
     }
 
     @GetMapping("/searchMovies")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
     public ResponseEntity<List<MovieDocument>> searchMovies(
             @RequestParam(value = "genre", required = false) String genre,
             @RequestParam(value = "rating", required = false) String rating,

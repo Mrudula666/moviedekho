@@ -11,16 +11,11 @@ public class MovieRequest {
 
 
     private String title;
-
     private List<String> actors;
-
     private String genre;
-
     private Integer yearOfRelease;
-
     private String rating;
-
     private String streamLink;
-
     private String moviePoster;
+
 }

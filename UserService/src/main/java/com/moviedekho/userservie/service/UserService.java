@@ -10,4 +10,6 @@ public interface UserService {
     public UserResponse register(UserRequest userRequest) throws Exception;
 
     public UserLoginResponse authenticate(String username, String password);
+
+    UserLoginResponse getUserDetails(String username);
 }
