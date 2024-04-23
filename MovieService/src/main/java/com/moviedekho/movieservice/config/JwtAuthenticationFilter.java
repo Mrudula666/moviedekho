@@ -21,12 +21,22 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     private  JwtTokenProvider tokenProvider;
 
+    private static final String ORIGIN = "Origin";
+
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
 
         try {
+            String origin = request.getHeader(ORIGIN);
+            if (origin != null) {
+                response.setHeader("Access-Control-Allow-Origin", origin);
+                response.setHeader("Access-Control-Allow-Credentials", "true");
+                response.setHeader("Access-Control-Allow-Headers", request.getHeader("Access-Control-Request-Headers"));
+                response.setHeader("Access-Control-Allow-Methods", "PATCH, GET, POST, PUT, DELETE, OPTIONS");
+            }
+
             String jwt = extractTokenFromHeader(request);
 
             if (StringUtils.hasText(jwt) && tokenProvider.validateToken(jwt)) {

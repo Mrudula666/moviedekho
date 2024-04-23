@@ -11,11 +11,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/movie")
-@CrossOrigin(origins = {"http://localhost:4200"})
+@CrossOrigin(origins = {"http://localhost:4200", "*"})
 public class MovieController {
 
     private final MovieService movieService;
@@ -32,12 +33,6 @@ public class MovieController {
         return new ResponseEntity<>(movies, HttpStatus.OK);
     }
 
-    @GetMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
-    public ResponseEntity<MovieDocument> getMovieById(@PathVariable String id) {
-        MovieDocument movie = movieService.getMovieById(id);
-        return movie != null ? ResponseEntity.ok(movie) : ResponseEntity.notFound().build();
-    }
 
     @PostMapping("/addMovieDetails")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -46,12 +41,12 @@ public class MovieController {
         return new ResponseEntity<>(savedMovie, HttpStatus.CREATED);
     }
 
-    @PutMapping("/{id}")
+    @PutMapping("/updateMovieDetails")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<MovieDocument> updateMovie(@PathVariable String id, @RequestBody MovieRequest movie) throws Exception {
+    public ResponseEntity<MovieResponse> updateMovie(@RequestBody MovieRequest movie) throws Exception {
 
-        MovieDocument existingMovie = movieService.getMovieById(id, movie);
-        return ResponseEntity.ok(existingMovie);
+        MovieResponse updatedMovieDetails = movieService.updateMovie(movie);
+        return ResponseEntity.ok(updatedMovieDetails);
 
     }
 
@@ -74,20 +69,12 @@ public class MovieController {
             @RequestParam(value = "yearOfRelease", required = false) Integer yearOfRelease,
             @RequestParam(value = "title", required = false) String title
     ) {
-        List<MovieDocument> movies = null;
-        if (genre != null && !genre.isEmpty()) {
-            movies = movieService.searchByGenre(genre);
-        } else if (rating != null && !rating.isEmpty()) {
-            movies = movieService.searchByRating(rating);
-        } else if (actor != null && !actor.isEmpty()) {
-            movies = movieService.searchByActor(actor);
-        } else if (yearOfRelease != null) {
-            movies = movieService.searchByYearOfRelease(yearOfRelease);
-        } else if (title != null && !title.isEmpty()) {
-            movies = movieService.searchByTitle(title);
-        } else {
-            return ResponseEntity.badRequest().body(null);
+
+        List<MovieDocument> movies = movieService.searchByCriteria(genre, rating, actor, yearOfRelease, title);
+        if (movies == null || movies.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyList());
         }
         return ResponseEntity.ok(movies);
     }
+
 }
