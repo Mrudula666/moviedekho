@@ -165,7 +165,7 @@ public class MovieServiceImpl implements MovieService {
         List<MovieDocument> movieDetails = movieRepository.findByTitleContainingIgnoreCase(updateMovieRequest.getTitle());
 
         if (movieDetails.isEmpty()){
-            throw new Exception("Movie Doesn't Exists");
+            addMovie(updateMovieRequest);
         }
         MovieDocument movie = movieDetails.get(0);
 

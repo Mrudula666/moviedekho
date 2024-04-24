@@ -15,7 +15,7 @@ public class MovieResponse extends GenericResponse{
     }
 
     private String title;
-    private List<String> actors;
+    private String actors;
     private String genre;
     private Integer yearOfRelease;
     private String rating;
