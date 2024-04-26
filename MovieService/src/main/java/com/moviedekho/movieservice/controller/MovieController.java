@@ -60,6 +60,16 @@ public class MovieController {
 
     }
 
+    @DeleteMapping("/deleteMovieByTitle/{title}")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    public ResponseEntity<GenericResponse> deleteMovieByTitle(@PathVariable("title") String title) throws Exception {
+
+        GenericResponse genericResponse =  movieService.deleteMovieByTitle(title);
+        return ResponseEntity.ok(genericResponse);
+
+
+    }
+
     @GetMapping("/searchMovies")
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
     public ResponseEntity<List<MovieDocument>> searchMovies(

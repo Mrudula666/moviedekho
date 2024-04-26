@@ -21,5 +21,6 @@ public class UserLoginResponse extends GenericResponse{
     private LocalDate dateOfBirth;
     private String gender;
     private String country;
+    private String subscriptionPlan;
     private String type = "Bearer ";
 }

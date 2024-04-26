@@ -20,7 +20,7 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeRequests(authorize -> authorize
                         .requestMatchers("/api/movie/**").permitAll()
-                        //.requestMatchers("/api/auth/login").permitAll()
+                        .requestMatchers("/api/auth/").permitAll()
                         .anyRequest().authenticated()
                 ).httpBasic(withDefaults());
 

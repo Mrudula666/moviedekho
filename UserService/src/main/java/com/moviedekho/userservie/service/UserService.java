@@ -12,4 +12,6 @@ public interface UserService {
     public UserLoginResponse authenticate(String username, String password);
 
     UserLoginResponse getUserDetails(String username);
+
+    UserLoginResponse updateUserDetails(UserRequest user) throws Exception;
 }

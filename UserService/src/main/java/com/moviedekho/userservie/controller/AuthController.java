@@ -35,4 +35,9 @@ public class AuthController {
     private UserLoginResponse getUserDetails(@PathVariable("username") String username){
         return userService.getUserDetails(username);
     }
+
+    @PatchMapping("/updateUserDetails")
+    private UserLoginResponse updateUserDetails(@RequestBody UserRequest user) throws Exception {
+        return userService.updateUserDetails(user);
+    }
 }

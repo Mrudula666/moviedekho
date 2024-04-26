@@ -18,6 +18,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.util.Optional;
 import java.util.Set;
@@ -135,6 +136,30 @@ public class UserServiceImpl implements UserService {
         return null;
     }
 
+    @Override
+    public UserLoginResponse updateUserDetails(UserRequest userRequest) throws Exception {
+        Optional<UserEntity> userOptional = userRepository.findByUsername(userRequest.getUsername());
+
+        if (userOptional.isEmpty()) {
+            throw new Exception("Invalid UserName");
+        }
+
+        UserEntity user = userOptional.get();
+
+        user.setEmail(userRequest.getEmail() != null ? userRequest.getEmail() : user.getEmail());
+        user.setMobileNumber(userRequest.getMobileNumber() != null ? userRequest.getMobileNumber() : user.getMobileNumber());
+        user.setCountry(userRequest.getCountry() != null ? userRequest.getCountry() : user.getCountry());
+        user.setGender(userRequest.getGender() != null ? userRequest.getGender() : user.getGender());
+        user.setDateOfBirth(userRequest.getDateOfBirth() != null ? userRequest.getDateOfBirth() : user.getDateOfBirth());
+        user.setSubscriptionPlan(userRequest.getSubscriptionPlan() != null
+                ? userRequest.getSubscriptionPlan().toString()
+                : user.getSubscriptionPlan());
+
+        UserEntity userEntity = userRepository.save(user);
+        return createUserLoginResponse(null, userEntity);
+
+    }
+
     private UserLoginResponse createUserLoginResponse(String jwtToken, UserEntity userEntity) {
 
         UserLoginResponse loginResponse = new UserLoginResponse();
@@ -150,6 +175,7 @@ public class UserServiceImpl implements UserService {
         Set<RoleName> roleNames = userEntity.getRoles().stream()
                 .map(RoleEntity::getName)
                 .collect(Collectors.toSet());
+        loginResponse.setSubscriptionPlan(userEntity.getSubscriptionPlan());
         loginResponse.setRoleNames(roleNames);
 
 

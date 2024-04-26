@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -104,7 +105,6 @@ public class MovieServiceImpl implements MovieService {
     private boolean isValidRequest(MovieRequest movieRequest) {
         List<MovieDocument> movieDetails = movieRepository.findByTitleContainingIgnoreCase(movieRequest.getTitle());
         return movieDetails.isEmpty();
-
     }
 
     private MovieResponse getMovieResponse(MovieDocument savedDocument, MovieDocument movieDocument) {
@@ -217,5 +217,16 @@ public class MovieServiceImpl implements MovieService {
         }
 
         return mongoTemplate.find(query, MovieDocument.class);
+    }
+
+    @Override
+    public GenericResponse deleteMovieByTitle(String title) {
+        List<MovieDocument> movieDetails = movieRepository.findByTitleContainingIgnoreCase(title);
+        if (movieDetails == null || movieDetails.isEmpty()) {
+            return new GenericResponse("Movie not found");
+        } else {
+            movieRepository.deleteAll(movieDetails);
+            return new GenericResponse("Movies deleted successfully");
+        }
     }
 }
