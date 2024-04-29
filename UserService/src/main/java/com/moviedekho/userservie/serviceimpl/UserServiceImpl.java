@@ -1,10 +1,12 @@
 package com.moviedekho.userservie.serviceimpl;
 
+import com.moviedekho.userservie.config.PaymentServiceClient;
 import com.moviedekho.userservie.entity.RoleEntity;
 import com.moviedekho.userservie.entity.UserEntity;
 import com.moviedekho.userservie.enums.RoleName;
 import com.moviedekho.userservie.enums.SubscriptionPlan;
 import com.moviedekho.userservie.exception.UserAlreadyExistsException;
+import com.moviedekho.userservie.model.request.PaymentRequest;
 import com.moviedekho.userservie.model.request.UserRequest;
 import com.moviedekho.userservie.model.response.UserLoginResponse;
 import com.moviedekho.userservie.model.response.UserResponse;
@@ -38,6 +40,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private JwtTokenProvider tokenProvider;
+
+    @org.springframework.beans.factory.annotation.Autowired(required=true)
+    private PaymentServiceClient paymentServiceClient;
 
 
     @Override
@@ -155,6 +160,13 @@ public class UserServiceImpl implements UserService {
                 ? userRequest.getSubscriptionPlan().toString()
                 : user.getSubscriptionPlan());
 
+        PaymentRequest paymentRequest = new PaymentRequest();
+
+        paymentRequest.setAmount(calculatePaymentAmount(userRequest.getSubscriptionPlan().name()));
+        paymentRequest.setSubscriptionPlan(userRequest.getSubscriptionPlan().name());
+
+       paymentServiceClient.createPayment(paymentRequest);
+
         UserEntity userEntity = userRepository.save(user);
         return createUserLoginResponse(null, userEntity);
 
@@ -180,5 +192,13 @@ public class UserServiceImpl implements UserService {
 
 
         return loginResponse;
+    }
+
+    private double calculatePaymentAmount(String subscriptionPlan) {
+        return switch (subscriptionPlan) {
+            case "PREMIUM" -> 100.0;
+            case "BASIC" -> 50.0;
+            default -> 00.0;
+        };
     }
 }

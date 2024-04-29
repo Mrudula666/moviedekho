@@ -6,6 +6,7 @@ import com.moviedekho.movieservice.model.request.MovieRequest;
 import com.moviedekho.movieservice.model.response.GenericResponse;
 import com.moviedekho.movieservice.model.response.MovieResponse;
 import com.moviedekho.movieservice.repository.MovieRepository;
+import com.moviedekho.movieservice.service.GridFSService;
 import com.moviedekho.movieservice.service.MovieService;
 import com.moviedekho.movieservice.exceptions.MovieAlreadyExistsException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -28,6 +30,9 @@ public class MovieServiceImpl implements MovieService {
 
     @Autowired
     MongoTemplate mongoTemplate;
+
+    @Autowired
+    private GridFSService gridFSService;
 
 
     @Override
@@ -86,7 +91,7 @@ public class MovieServiceImpl implements MovieService {
     }
 
     @Override
-    public MovieResponse addMovie(MovieRequest movieRequest) {
+    public MovieResponse addMovie(MovieRequest movieRequest) throws IOException {
         if(!isValidRequest(movieRequest)){
             throw new MovieAlreadyExistsException("A movie with the given details already exists.");
         }
@@ -115,11 +120,12 @@ public class MovieServiceImpl implements MovieService {
         movieResponse.setGenre(movieDocument.getGenre());
         movieResponse.setYearOfRelease(movieDocument.getYearOfRelease());
         movieResponse.setStreamLink(movieDocument.getStreamLink());
-        movieResponse.setPosterLink(movieResponse.getPosterLink());
+        movieResponse.setPosterLink(savedDocument.getMoviePoster());
+        movieResponse.setVideoFileId(savedDocument.getVideoFileId());
         return movieResponse;
     }
 
-    private MovieDocument mapMovieDocument(MovieRequest movieRequest) {
+    private MovieDocument mapMovieDocument(MovieRequest movieRequest) throws IOException {
 
         MovieDocument movieDocument = new MovieDocument();
         movieDocument.setTitle(movieRequest.getTitle());
@@ -129,6 +135,9 @@ public class MovieServiceImpl implements MovieService {
         movieDocument.setRating(movieRequest.getRating());
         movieDocument.setStreamLink(movieRequest.getStreamLink());
         movieDocument.setMoviePoster(movieRequest.getMoviePoster());
+        // Store the MP4 file and get its GridFS ID
+        String videoFileId = gridFSService.storeFile(movieRequest.getVideoFile());
+        movieDocument.setVideoFileId(videoFileId);
 
         return  movieDocument;
     }

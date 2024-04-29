@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -22,6 +23,6 @@ public class MovieDocument {
     private String rating;
     private String streamLink;
     private String moviePoster;
-
+    private String videoFileId;
 
 }

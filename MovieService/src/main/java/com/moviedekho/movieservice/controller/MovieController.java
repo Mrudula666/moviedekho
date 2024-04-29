@@ -4,13 +4,20 @@ import com.moviedekho.movieservice.document.MovieDocument;
 import com.moviedekho.movieservice.model.request.MovieRequest;
 import com.moviedekho.movieservice.model.response.GenericResponse;
 import com.moviedekho.movieservice.model.response.MovieResponse;
+import com.moviedekho.movieservice.service.GridFSService;
 import com.moviedekho.movieservice.service.MovieService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.data.mongodb.gridfs.GridFsResource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
@@ -20,6 +27,9 @@ import java.util.List;
 public class MovieController {
 
     private final MovieService movieService;
+
+    @Autowired
+    private GridFSService gridFSService;
 
     @Autowired
     public MovieController(MovieService movieService) {
@@ -36,7 +46,27 @@ public class MovieController {
 
     @PostMapping("/addMovieDetails")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<MovieResponse> createMovie(@RequestBody MovieRequest movie) {
+    public ResponseEntity<?> createMovie(@RequestParam("title") String title,
+                                                     @RequestParam("actors") String actors,
+                                                     @RequestParam("genre") String genre,
+                                                     @RequestParam("yearOfRelease") Integer yearOfRelease,
+                                                     @RequestParam("rating") String rating,
+                                                     @RequestParam("streamLink") String streamLink,
+                                                     @RequestParam("moviePoster") String moviePoster,
+                                                     @RequestParam("videoFile") MultipartFile videoFile)
+            throws IOException {
+        if (yearOfRelease == null || yearOfRelease < 1900 || yearOfRelease > 2100) {
+            return ResponseEntity.badRequest().body("Invalid year of release.");
+        }
+        MovieRequest movie= new MovieRequest();
+        movie.setYearOfRelease(yearOfRelease);
+        movie.setMoviePoster(moviePoster);
+        movie.setRating(rating);
+        movie.setGenre(genre);
+        movie.setActors(actors);
+        movie.setTitle(title);
+        movie.setStreamLink(streamLink);
+        movie.setVideoFile(videoFile);
         MovieResponse savedMovie = movieService.addMovie(movie);
         return new ResponseEntity<>(savedMovie, HttpStatus.CREATED);
     }
@@ -48,6 +78,16 @@ public class MovieController {
         MovieResponse updatedMovieDetails = movieService.updateMovie(movie);
         return ResponseEntity.ok(updatedMovieDetails);
 
+    }
+
+    @GetMapping("/video/{fileId}")
+    public ResponseEntity<InputStreamResource> getVideoFile(@PathVariable("fileId") String fileId) throws IOException {
+        GridFsResource resource = gridFSService.getFile(fileId);
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(resource.getContentType()))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=" + resource.getFilename())
+                .body(new InputStreamResource(resource.getInputStream()));
     }
 
     @DeleteMapping("/{id}")

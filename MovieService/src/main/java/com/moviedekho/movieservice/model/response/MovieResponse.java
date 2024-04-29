@@ -21,4 +21,5 @@ public class MovieResponse extends GenericResponse{
     private String rating;
     private String streamLink;
     private String posterLink;
+    private String videoFileId;
 }

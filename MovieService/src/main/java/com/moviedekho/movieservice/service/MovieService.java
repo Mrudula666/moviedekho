@@ -5,6 +5,7 @@ import com.moviedekho.movieservice.model.request.MovieRequest;
 import com.moviedekho.movieservice.model.response.GenericResponse;
 import com.moviedekho.movieservice.model.response.MovieResponse;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -21,7 +22,7 @@ public interface MovieService {
 
     GenericResponse deleteMovie(String id) throws Exception;
 
-    MovieResponse addMovie(MovieRequest movie);
+    MovieResponse addMovie(MovieRequest movie) throws IOException;
 
     List<MovieDocument> searchByGenre(String genre);
 

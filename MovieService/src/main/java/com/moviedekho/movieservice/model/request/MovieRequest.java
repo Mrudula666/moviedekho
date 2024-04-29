@@ -2,6 +2,7 @@ package com.moviedekho.movieservice.model.request;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -17,5 +18,6 @@ public class MovieRequest {
     private String rating;
     private String streamLink;
     private String moviePoster;
+    private MultipartFile videoFile;
 
 }
