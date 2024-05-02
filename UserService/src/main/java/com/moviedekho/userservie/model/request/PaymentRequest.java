@@ -10,5 +10,6 @@ public class PaymentRequest {
     private Long id;
     private double amount;
     private String subscriptionPlan;
+    private String username;
 
 }

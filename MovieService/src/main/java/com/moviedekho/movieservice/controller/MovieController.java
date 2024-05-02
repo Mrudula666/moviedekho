@@ -71,9 +71,28 @@ public class MovieController {
         return new ResponseEntity<>(savedMovie, HttpStatus.CREATED);
     }
 
-    @PutMapping("/updateMovieDetails")
+    @PatchMapping("/updateMovieDetails")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<MovieResponse> updateMovie(@RequestBody MovieRequest movie) throws Exception {
+    public ResponseEntity<?> updateMovie(@RequestParam("title") String title,
+                                                     @RequestParam(value = "actors", required = false) String actors,
+                                                     @RequestParam(value = "genre", required=false) String genre,
+                                                     @RequestParam(value = "yearOfRelease",  required=false) Integer yearOfRelease,
+                                                     @RequestParam(value = "rating", required = false) String rating,
+                                                     @RequestParam(value = "streamLink", required = false) String streamLink,
+                                                     @RequestParam(value = "moviePoster", required = false) String moviePoster,
+                                                     @RequestParam(value = "videoFile", required = false) MultipartFile videoFile) throws Exception {
+        if (yearOfRelease == null || yearOfRelease < 1900 || yearOfRelease > 2100) {
+            return ResponseEntity.badRequest().body("Invalid year of release.");
+        }
+        MovieRequest movie= new MovieRequest();
+        movie.setYearOfRelease(yearOfRelease);
+        movie.setMoviePoster(moviePoster);
+        movie.setRating(rating);
+        movie.setGenre(genre);
+        movie.setActors(actors);
+        movie.setTitle(title);
+        movie.setStreamLink(streamLink);
+        movie.setVideoFile(videoFile);
 
         MovieResponse updatedMovieDetails = movieService.updateMovie(movie);
         return ResponseEntity.ok(updatedMovieDetails);
@@ -113,14 +132,12 @@ public class MovieController {
     @GetMapping("/searchMovies")
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
     public ResponseEntity<List<MovieDocument>> searchMovies(
-            @RequestParam(value = "genre", required = false) String genre,
-            @RequestParam(value = "rating", required = false) String rating,
             @RequestParam(value = "actor", required = false) String actor,
             @RequestParam(value = "yearOfRelease", required = false) Integer yearOfRelease,
             @RequestParam(value = "title", required = false) String title
     ) {
 
-        List<MovieDocument> movies = movieService.searchByCriteria(genre, rating, actor, yearOfRelease, title);
+        List<MovieDocument> movies = movieService.searchByCriteria(actor, yearOfRelease, title);
         if (movies == null || movies.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyList());
         }

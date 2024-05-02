@@ -36,7 +36,7 @@ public interface MovieService {
 
     MovieResponse updateMovie(MovieRequest updateMovieRequest) throws Exception;
 
-    List<MovieDocument> searchByCriteria(String genre, String rating, String actor, Integer yearOfRelease, String title);
+    List<MovieDocument> searchByCriteria(String actor, Integer yearOfRelease, String title);
 
     GenericResponse deleteMovieByTitle(String title);
 }

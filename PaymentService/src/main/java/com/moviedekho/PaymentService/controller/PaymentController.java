@@ -22,7 +22,7 @@ public class PaymentController {
 
 
     @PostMapping("/create")
-    public ResponseEntity<Payment> createPayment(@RequestBody PaymentRequest paymentRequest) {
+    public ResponseEntity<?> createPayment(@RequestBody PaymentRequest paymentRequest) {
         Payment payment = new Payment();
         payment.setUsername(payment.getUsername());
         payment.setAmount(paymentRequest.getAmount());
@@ -31,6 +31,6 @@ public class PaymentController {
 
         PaymentResponse paymentResponse = paymentService.addPayment(payment);
 
-        return new ResponseEntity<>(payment, HttpStatus.CREATED);
+        return new ResponseEntity<>(paymentResponse, HttpStatus.CREATED);
     }
 }

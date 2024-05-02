@@ -57,6 +57,12 @@ public class UserServiceImpl implements UserService {
             throw new UserAlreadyExistsException("Mobile number already in use");
         }
         UserEntity userEntity = createUserEntity(userRequest);
+
+        PaymentRequest paymentRequest = new PaymentRequest();
+        paymentRequest.setSubscriptionPlan(userRequest.getSubscriptionPlan().name());
+        paymentRequest.setAmount(calculatePaymentAmount(userEntity.getSubscriptionPlan().toString()));
+        paymentRequest.setUsername(userRequest.getUsername());
+        paymentServiceClient.createPayment(paymentRequest);
         UserEntity entity = userRepository.save(userEntity);
 
         return createUserResponse(userRequest, entity, userEntity);

@@ -174,7 +174,7 @@ public class MovieServiceImpl implements MovieService {
         List<MovieDocument> movieDetails = movieRepository.findByTitleContainingIgnoreCase(updateMovieRequest.getTitle());
 
         if (movieDetails.isEmpty()){
-            addMovie(updateMovieRequest);
+            throw new Exception("Movie Not Found");
         }
         MovieDocument movie = movieDetails.get(0);
 
@@ -184,11 +184,16 @@ public class MovieServiceImpl implements MovieService {
         movie.setRating(updateMovieRequest.getRating() != null ? updateMovieRequest.getRating() : movie.getRating());
         movie.setStreamLink(updateMovieRequest.getStreamLink() != null ? updateMovieRequest.getStreamLink() : movie.getStreamLink());
         movie.setMoviePoster(updateMovieRequest.getMoviePoster() != null ? updateMovieRequest.getMoviePoster() : movie.getMoviePoster());
-
-
+        if (updateMovieRequest.getVideoFile() != null){
+            String videoFileId = gridFSService.storeFile(updateMovieRequest.getVideoFile());
+            movie.setVideoFileId(updateMovieRequest.getVideoFile() != null ? videoFileId: movie.getVideoFileId());
+        }
         movieRepository.save(movie);
 
+        return getMovieResponse(movie);
+    }
 
+    private static MovieResponse getMovieResponse(MovieDocument movie) {
         MovieResponse movieResponse = new MovieResponse("Movie updated successfully.");
         movieResponse.setTitle(movie.getTitle());
         movieResponse.setActors(movie.getActors());
@@ -197,24 +202,18 @@ public class MovieServiceImpl implements MovieService {
         movieResponse.setRating(movie.getRating());
         movieResponse.setStreamLink(movie.getStreamLink());
         movieResponse.setPosterLink(movie.getMoviePoster());
-
+        movieResponse.setVideoFileId(movie.getVideoFileId());
         return movieResponse;
     }
 
-    public List<MovieDocument> searchByCriteria(String genre, String rating, String actor, Integer yearOfRelease, String title) {
+    public List<MovieDocument> searchByCriteria(String actor,
+                                                Integer yearOfRelease,
+                                                String title) {
         List<MovieDocument> movies = new ArrayList<>();
         Query query = new Query();
 
-        if (genre != null && !genre.isEmpty()) {
-            query.addCriteria(Criteria.where("genre").is(genre));
-        }
-
-        if (rating != null && !rating.isEmpty()) {
-            query.addCriteria(Criteria.where("rating").is(rating));
-        }
-
         if (actor != null && !actor.isEmpty()) {
-            query.addCriteria(Criteria.where("actors").in(actor));
+            query.addCriteria(Criteria.where("actors").regex(".*" + actor + ".*", "i"));
         }
 
         if (yearOfRelease != null) {
@@ -222,7 +221,7 @@ public class MovieServiceImpl implements MovieService {
         }
 
         if (title != null && !title.isEmpty()) {
-            query.addCriteria(Criteria.where("title").regex(".*" + title + ".*", "i")); // Case-insensitive title search
+            query.addCriteria(Criteria.where("title").regex(".*" + title + ".*", "i"));
         }
 
         return mongoTemplate.find(query, MovieDocument.class);
