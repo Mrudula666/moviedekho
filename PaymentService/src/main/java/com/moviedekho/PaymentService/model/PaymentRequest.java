@@ -9,5 +9,6 @@ public class PaymentRequest {
 
     private double amount;
     private String subscriptionPlan;
+    private String username;
 
 }

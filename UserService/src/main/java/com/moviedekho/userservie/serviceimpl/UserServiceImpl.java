@@ -58,11 +58,14 @@ public class UserServiceImpl implements UserService {
         }
         UserEntity userEntity = createUserEntity(userRequest);
 
-        PaymentRequest paymentRequest = new PaymentRequest();
-        paymentRequest.setSubscriptionPlan(userRequest.getSubscriptionPlan().name());
-        paymentRequest.setAmount(calculatePaymentAmount(userEntity.getSubscriptionPlan().toString()));
-        paymentRequest.setUsername(userRequest.getUsername());
-        paymentServiceClient.createPayment(paymentRequest);
+        if(userRequest.getSubscriptionPlan() != SubscriptionPlan.NONE){
+            PaymentRequest paymentRequest = new PaymentRequest();
+            paymentRequest.setSubscriptionPlan(userRequest.getSubscriptionPlan().name());
+            paymentRequest.setAmount(calculatePaymentAmount(userEntity.getSubscriptionPlan().toString()));
+            paymentRequest.setUsername(userRequest.getUsername());
+            paymentServiceClient.createPayment(paymentRequest);
+        }
+
         UserEntity entity = userRepository.save(userEntity);
 
         return createUserResponse(userRequest, entity, userEntity);
@@ -170,7 +173,7 @@ public class UserServiceImpl implements UserService {
 
         paymentRequest.setAmount(calculatePaymentAmount(userRequest.getSubscriptionPlan().name()));
         paymentRequest.setSubscriptionPlan(userRequest.getSubscriptionPlan().name());
-
+        paymentRequest.setUsername(user.getUsername());
        paymentServiceClient.createPayment(paymentRequest);
 
         UserEntity userEntity = userRepository.save(user);

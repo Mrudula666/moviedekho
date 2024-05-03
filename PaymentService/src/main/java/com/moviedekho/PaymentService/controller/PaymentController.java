@@ -24,7 +24,7 @@ public class PaymentController {
     @PostMapping("/create")
     public ResponseEntity<?> createPayment(@RequestBody PaymentRequest paymentRequest) {
         Payment payment = new Payment();
-        payment.setUsername(payment.getUsername());
+        payment.setUsername(paymentRequest.getUsername());
         payment.setAmount(paymentRequest.getAmount());
         payment.setPaymentDate(new Date());
          payment.setSubscriptionPlan(paymentRequest.getSubscriptionPlan());
