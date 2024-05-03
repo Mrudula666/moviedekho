@@ -23,7 +23,6 @@ public class JwtTokenProvider {
     private int jwtExpirationMs;
 
 
-
     public String createToken(UserEntity userEntity) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpirationMs);

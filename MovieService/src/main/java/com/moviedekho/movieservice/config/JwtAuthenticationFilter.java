@@ -19,7 +19,7 @@ import java.util.Collections;
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired
-    private  JwtTokenProvider tokenProvider;
+    private JwtTokenProvider tokenProvider;
 
     private static final String ORIGIN = "Origin";
 

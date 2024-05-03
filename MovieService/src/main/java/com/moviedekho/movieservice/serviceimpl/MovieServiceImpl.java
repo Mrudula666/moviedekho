@@ -2,23 +2,21 @@ package com.moviedekho.movieservice.serviceimpl;
 
 import com.mongodb.DuplicateKeyException;
 import com.moviedekho.movieservice.document.MovieDocument;
+import com.moviedekho.movieservice.exceptions.MovieAlreadyExistsException;
 import com.moviedekho.movieservice.model.request.MovieRequest;
 import com.moviedekho.movieservice.model.response.GenericResponse;
 import com.moviedekho.movieservice.model.response.MovieResponse;
 import com.moviedekho.movieservice.repository.MovieRepository;
 import com.moviedekho.movieservice.service.GridFSService;
 import com.moviedekho.movieservice.service.MovieService;
-import com.moviedekho.movieservice.exceptions.MovieAlreadyExistsException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
@@ -39,6 +37,7 @@ public class MovieServiceImpl implements MovieService {
     public List<MovieDocument> getAllMovies() {
         return movieRepository.findAll();
     }
+
     @Override
     public MovieDocument getMovieById(String id, MovieRequest movie) throws Exception {
         Optional<MovieDocument> movieOptional = movieRepository.findById(id);
@@ -64,6 +63,7 @@ public class MovieServiceImpl implements MovieService {
     public MovieDocument createMovie(MovieDocument movie) {
         return movieRepository.save(movie);
     }
+
     @Override
     public Optional<MovieDocument> updateMovie(String id, MovieDocument updatedMovie) {
         return movieRepository.findById(id)
@@ -82,20 +82,20 @@ public class MovieServiceImpl implements MovieService {
     @Override
     public GenericResponse deleteMovie(String id) throws Exception {
         Optional<MovieDocument> existingMovie = movieRepository.findById(id);
-        if(existingMovie.isPresent()){
+        if (existingMovie.isPresent()) {
             movieRepository.deleteById(id);
             return new GenericResponse("Movie Details Deleted Successfully");
-        }else{
+        } else {
             throw new Exception("Unable To Delete Movie Details...");
         }
     }
 
     @Override
     public MovieResponse addMovie(MovieRequest movieRequest) throws IOException {
-        if(!isValidRequest(movieRequest)){
+        if (!isValidRequest(movieRequest)) {
             throw new MovieAlreadyExistsException("A movie with the given details already exists.");
         }
-       MovieDocument  movieDocument =  mapMovieDocument(movieRequest);
+        MovieDocument movieDocument = mapMovieDocument(movieRequest);
         MovieDocument savedDocument;
         try {
             savedDocument = movieRepository.save(movieDocument);
@@ -139,7 +139,7 @@ public class MovieServiceImpl implements MovieService {
         String videoFileId = gridFSService.storeFile(movieRequest.getVideoFile());
         movieDocument.setVideoFileId(videoFileId);
 
-        return  movieDocument;
+        return movieDocument;
     }
 
 
@@ -173,7 +173,7 @@ public class MovieServiceImpl implements MovieService {
 
         List<MovieDocument> movieDetails = movieRepository.findByTitleContainingIgnoreCase(updateMovieRequest.getTitle());
 
-        if (movieDetails.isEmpty()){
+        if (movieDetails.isEmpty()) {
             throw new Exception("Movie Not Found");
         }
         MovieDocument movie = movieDetails.get(0);
@@ -184,9 +184,9 @@ public class MovieServiceImpl implements MovieService {
         movie.setRating(updateMovieRequest.getRating() != null ? updateMovieRequest.getRating() : movie.getRating());
         movie.setStreamLink(updateMovieRequest.getStreamLink() != null ? updateMovieRequest.getStreamLink() : movie.getStreamLink());
         movie.setMoviePoster(updateMovieRequest.getMoviePoster() != null ? updateMovieRequest.getMoviePoster() : movie.getMoviePoster());
-        if (updateMovieRequest.getVideoFile() != null){
+        if (updateMovieRequest.getVideoFile() != null) {
             String videoFileId = gridFSService.storeFile(updateMovieRequest.getVideoFile());
-            movie.setVideoFileId(updateMovieRequest.getVideoFile() != null ? videoFileId: movie.getVideoFileId());
+            movie.setVideoFileId(updateMovieRequest.getVideoFile() != null ? videoFileId : movie.getVideoFileId());
         }
         movieRepository.save(movie);
 

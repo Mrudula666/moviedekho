@@ -39,7 +39,8 @@ public class MovieController {
     @GetMapping("/getAllMovies")
     @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
     public ResponseEntity<List<MovieDocument>> getAllMovies() {
-        List<MovieDocument> movies = movieService.getAllMovies();;
+        List<MovieDocument> movies = movieService.getAllMovies();
+        ;
         return new ResponseEntity<>(movies, HttpStatus.OK);
     }
 
@@ -47,18 +48,18 @@ public class MovieController {
     @PostMapping("/addMovieDetails")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> createMovie(@RequestParam("title") String title,
-                                                     @RequestParam("actors") String actors,
-                                                     @RequestParam("genre") String genre,
-                                                     @RequestParam("yearOfRelease") Integer yearOfRelease,
-                                                     @RequestParam("rating") String rating,
-                                                     @RequestParam("streamLink") String streamLink,
-                                                     @RequestParam("moviePoster") String moviePoster,
-                                                     @RequestParam("videoFile") MultipartFile videoFile)
+                                         @RequestParam("actors") String actors,
+                                         @RequestParam("genre") String genre,
+                                         @RequestParam("yearOfRelease") Integer yearOfRelease,
+                                         @RequestParam("rating") String rating,
+                                         @RequestParam("streamLink") String streamLink,
+                                         @RequestParam("moviePoster") String moviePoster,
+                                         @RequestParam("videoFile") MultipartFile videoFile)
             throws IOException {
         if (yearOfRelease == null || yearOfRelease < 1900 || yearOfRelease > 2100) {
             return ResponseEntity.badRequest().body("Invalid year of release.");
         }
-        MovieRequest movie= new MovieRequest();
+        MovieRequest movie = new MovieRequest();
         movie.setYearOfRelease(yearOfRelease);
         movie.setMoviePoster(moviePoster);
         movie.setRating(rating);
@@ -74,17 +75,17 @@ public class MovieController {
     @PatchMapping("/updateMovieDetails")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<?> updateMovie(@RequestParam("title") String title,
-                                                     @RequestParam(value = "actors", required = false) String actors,
-                                                     @RequestParam(value = "genre", required=false) String genre,
-                                                     @RequestParam(value = "yearOfRelease",  required=false) Integer yearOfRelease,
-                                                     @RequestParam(value = "rating", required = false) String rating,
-                                                     @RequestParam(value = "streamLink", required = false) String streamLink,
-                                                     @RequestParam(value = "moviePoster", required = false) String moviePoster,
-                                                     @RequestParam(value = "videoFile", required = false) MultipartFile videoFile) throws Exception {
+                                         @RequestParam(value = "actors", required = false) String actors,
+                                         @RequestParam(value = "genre", required = false) String genre,
+                                         @RequestParam(value = "yearOfRelease", required = false) Integer yearOfRelease,
+                                         @RequestParam(value = "rating", required = false) String rating,
+                                         @RequestParam(value = "streamLink", required = false) String streamLink,
+                                         @RequestParam(value = "moviePoster", required = false) String moviePoster,
+                                         @RequestParam(value = "videoFile", required = false) MultipartFile videoFile) throws Exception {
         if (yearOfRelease == null || yearOfRelease < 1900 || yearOfRelease > 2100) {
             return ResponseEntity.badRequest().body("Invalid year of release.");
         }
-        MovieRequest movie= new MovieRequest();
+        MovieRequest movie = new MovieRequest();
         movie.setYearOfRelease(yearOfRelease);
         movie.setMoviePoster(moviePoster);
         movie.setRating(rating);
@@ -113,7 +114,7 @@ public class MovieController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<GenericResponse> deleteMovie(@PathVariable String id) throws Exception {
 
-        GenericResponse genericResponse =  movieService.deleteMovie(id);
+        GenericResponse genericResponse = movieService.deleteMovie(id);
         return ResponseEntity.ok(genericResponse);
 
 
@@ -123,7 +124,7 @@ public class MovieController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public ResponseEntity<GenericResponse> deleteMovieByTitle(@PathVariable("title") String title) throws Exception {
 
-        GenericResponse genericResponse =  movieService.deleteMovieByTitle(title);
+        GenericResponse genericResponse = movieService.deleteMovieByTitle(title);
         return ResponseEntity.ok(genericResponse);
 
 

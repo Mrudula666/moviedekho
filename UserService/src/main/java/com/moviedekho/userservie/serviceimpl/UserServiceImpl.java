@@ -20,7 +20,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.util.Optional;
 import java.util.Set;
@@ -41,7 +40,7 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private JwtTokenProvider tokenProvider;
 
-    @org.springframework.beans.factory.annotation.Autowired(required=true)
+    @org.springframework.beans.factory.annotation.Autowired(required = true)
     private PaymentServiceClient paymentServiceClient;
 
 
@@ -58,7 +57,7 @@ public class UserServiceImpl implements UserService {
         }
         UserEntity userEntity = createUserEntity(userRequest);
 
-        if(userRequest.getSubscriptionPlan() != SubscriptionPlan.NONE){
+        if (userRequest.getSubscriptionPlan() != SubscriptionPlan.NONE) {
             PaymentRequest paymentRequest = new PaymentRequest();
             paymentRequest.setSubscriptionPlan(userRequest.getSubscriptionPlan().name());
             paymentRequest.setAmount(calculatePaymentAmount(userEntity.getSubscriptionPlan().toString()));
@@ -72,9 +71,9 @@ public class UserServiceImpl implements UserService {
 
     }
 
-    private UserResponse createUserResponse(UserRequest userRequest, UserEntity entity,  UserEntity userEntity) {
+    private UserResponse createUserResponse(UserRequest userRequest, UserEntity entity, UserEntity userEntity) {
         UserResponse response = new UserResponse();
-        if (entity != null ){
+        if (entity != null) {
             response.setMessage("User Registered Successfully");
             response.setGender(userEntity.getGender());
             response.setRole(userRequest.getRoleName().name());
@@ -99,16 +98,16 @@ public class UserServiceImpl implements UserService {
         userEntity.setPassword(passwordEncoder.encode(userRequest.getPassword()));
         userEntity.setGender(userRequest.getGender());
         userEntity.setDateOfBirth(userRequest.getDateOfBirth());
-        userEntity.setSubscriptionPlan((userRequest.getSubscriptionPlan() != null?
-                userRequest.getSubscriptionPlan().name(): SubscriptionPlan.NONE.name()));
+        userEntity.setSubscriptionPlan((userRequest.getSubscriptionPlan() != null ?
+                userRequest.getSubscriptionPlan().name() : SubscriptionPlan.NONE.name()));
         userEntity.setEmail(userRequest.getEmail());
         userEntity.setMobileNumber(userRequest.getMobileNumber());
 
         RoleEntity roleEntity = roleRepository.findByName(userRequest.getRoleName())
                 .orElseThrow(() -> new RuntimeException("Error: Role is not found."));
 
-        userEntity.setRoles(Set.of(roleEntity)); 
-        
+        userEntity.setRoles(Set.of(roleEntity));
+
         userEntity.setAuthorities(userEntity.getRoles().stream()
                 .map(role -> new SimpleGrantedAuthority(role.getName().name()))
                 .collect(Collectors.toSet()));
@@ -131,7 +130,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserLoginResponse getUserDetails(String username) {
         Optional<UserEntity> userResultOptional = userRepository.findByUsername(username);
-        if(userResultOptional.isPresent()){
+        if (userResultOptional.isPresent()) {
             UserEntity user = userResultOptional.get();
             UserLoginResponse userResponse = new UserLoginResponse();
             userResponse.setMessage("User Details Fetched Successfully");
@@ -174,7 +173,7 @@ public class UserServiceImpl implements UserService {
         paymentRequest.setAmount(calculatePaymentAmount(userRequest.getSubscriptionPlan().name()));
         paymentRequest.setSubscriptionPlan(userRequest.getSubscriptionPlan().name());
         paymentRequest.setUsername(user.getUsername());
-       paymentServiceClient.createPayment(paymentRequest);
+        paymentServiceClient.createPayment(paymentRequest);
 
         UserEntity userEntity = userRepository.save(user);
         return createUserLoginResponse(null, userEntity);

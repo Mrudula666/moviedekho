@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
+
 @Service
 public class JwtTokenProvider {
 
@@ -20,7 +21,6 @@ public class JwtTokenProvider {
 
     @Value("${app.jwtExpirationMs}")
     private int jwtExpirationMs;
-
 
 
     public boolean validateToken(String token) {

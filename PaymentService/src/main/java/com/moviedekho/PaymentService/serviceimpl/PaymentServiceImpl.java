@@ -15,10 +15,11 @@ public class PaymentServiceImpl implements PaymentService {
 
     @Autowired
     private PaymentRepository paymentRepository;
+
     @Override
     public PaymentResponse addPayment(Payment payment) {
 
-        if(isPaymentValid(payment)){
+        if (isPaymentValid(payment)) {
             paymentRepository.save(payment);
             PaymentResponse response = new PaymentResponse();
             response.setMessage("Payment Done SuccessFully");
@@ -29,7 +30,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     private boolean isPaymentValid(Payment payment) {
-        Optional<Payment> paymentOptional =  paymentRepository.findByUsernameAndSubscriptionPlan(payment.getUsername(),
+        Optional<Payment> paymentOptional = paymentRepository.findByUsernameAndSubscriptionPlan(payment.getUsername(),
                 payment.getSubscriptionPlan());
         return paymentOptional.isEmpty();
     }

@@ -22,17 +22,17 @@ public class AuthController {
     @PostMapping("/register")
     public ResponseEntity<UserResponse> registerUser(@RequestBody UserRequest userRequest) throws Exception {
         UserResponse userResponse = userService.register(userRequest);
-        return new ResponseEntity<>(userResponse,  HttpStatus.CREATED);
+        return new ResponseEntity<>(userResponse, HttpStatus.CREATED);
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> authenticateUser(@RequestBody UserLoginRequest user) {
-       UserLoginResponse userLoginResponse = userService.authenticate(user.getUserName(), user.getPassword());
-        return new ResponseEntity<>(userLoginResponse,  HttpStatus.OK);
+        UserLoginResponse userLoginResponse = userService.authenticate(user.getUserName(), user.getPassword());
+        return new ResponseEntity<>(userLoginResponse, HttpStatus.OK);
     }
 
     @GetMapping("/users/{username}/details")
-    private UserLoginResponse getUserDetails(@PathVariable("username") String username){
+    private UserLoginResponse getUserDetails(@PathVariable("username") String username) {
         return userService.getUserDetails(username);
     }
 

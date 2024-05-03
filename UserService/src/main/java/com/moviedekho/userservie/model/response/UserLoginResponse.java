@@ -11,7 +11,7 @@ import java.util.Set;
 @Getter
 @Setter
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class UserLoginResponse extends GenericResponse{
+public class UserLoginResponse extends GenericResponse {
 
     private String token;
     private String email;

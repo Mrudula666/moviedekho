@@ -24,7 +24,7 @@ public class UserEntity implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name="username")
+    @Column(name = "username")
     private String username;
 
     @Column(name = "password")
@@ -36,16 +36,16 @@ public class UserEntity implements UserDetails {
     @Column(name = "mobileNumber")
     private String mobileNumber;
 
-    @Column(name="country")
+    @Column(name = "country")
     private String country;
 
-    @Column(name="gender")
+    @Column(name = "gender")
     private String gender;
 
     @Column(name = "date_of_birth")
     private LocalDate dateOfBirth;
 
-    @Column(name="subscription_plan")
+    @Column(name = "subscription_plan")
     private String subscriptionPlan;
 
 
@@ -70,8 +70,6 @@ public class UserEntity implements UserDetails {
         }
         return authorities;
     }
-
-
 
 
     @Override

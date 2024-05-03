@@ -27,7 +27,7 @@ public class PaymentController {
         payment.setUsername(paymentRequest.getUsername());
         payment.setAmount(paymentRequest.getAmount());
         payment.setPaymentDate(new Date());
-         payment.setSubscriptionPlan(paymentRequest.getSubscriptionPlan());
+        payment.setSubscriptionPlan(paymentRequest.getSubscriptionPlan());
 
         PaymentResponse paymentResponse = paymentService.addPayment(payment);
 

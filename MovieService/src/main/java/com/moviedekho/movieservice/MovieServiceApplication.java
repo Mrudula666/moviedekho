@@ -10,11 +10,11 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @SpringBootApplication
 @EnableDiscoveryClient
 @EnableFeignClients
-@EnableAutoConfiguration(exclude={DataSourceAutoConfiguration.class})
+@EnableAutoConfiguration(exclude = {DataSourceAutoConfiguration.class})
 public class MovieServiceApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(MovieServiceApplication.class, args);
-	}
+    public static void main(String[] args) {
+        SpringApplication.run(MovieServiceApplication.class, args);
+    }
 
 }

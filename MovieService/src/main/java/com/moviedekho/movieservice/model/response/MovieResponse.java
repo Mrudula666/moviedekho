@@ -3,11 +3,9 @@ package com.moviedekho.movieservice.model.response;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
-
 @Getter
 @Setter
-public class MovieResponse extends GenericResponse{
+public class MovieResponse extends GenericResponse {
 
 
     public MovieResponse(String message) {
