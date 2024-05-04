@@ -1,6 +1,6 @@
 package com.moviedekho.PaymentService.service;
 
-import com.moviedekho.PaymentService.entity.Payment;
+import com.moviedekho.PaymentService.model.PaymentRequest;
 import com.moviedekho.PaymentService.model.PaymentResponse;
 import org.springframework.stereotype.Service;
 
@@ -8,5 +8,7 @@ import org.springframework.stereotype.Service;
 public interface PaymentService {
 
 
-    PaymentResponse addPayment(Payment payment);
+    PaymentResponse addPayment(PaymentRequest paymentRequest);
+
+    PaymentResponse updatePayment(PaymentRequest paymentRequest);
 }

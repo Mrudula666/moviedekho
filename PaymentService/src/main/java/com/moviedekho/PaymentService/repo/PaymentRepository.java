@@ -11,5 +11,7 @@ public interface PaymentRepository extends JpaRepository<Payment, Long> {
 
 
     Optional<Payment> findByUsernameAndSubscriptionPlan(String username, String subscriptionPlan);
+
+    Optional<Payment> findByUsername(String username);
 }
 

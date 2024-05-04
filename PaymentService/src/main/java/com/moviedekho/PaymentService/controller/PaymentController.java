@@ -23,14 +23,21 @@ public class PaymentController {
 
     @PostMapping("/create")
     public ResponseEntity<?> createPayment(@RequestBody PaymentRequest paymentRequest) {
-        Payment payment = new Payment();
-        payment.setUsername(paymentRequest.getUsername());
-        payment.setAmount(paymentRequest.getAmount());
-        payment.setPaymentDate(new Date());
-        payment.setSubscriptionPlan(paymentRequest.getSubscriptionPlan());
 
-        PaymentResponse paymentResponse = paymentService.addPayment(payment);
+
+        PaymentResponse paymentResponse = paymentService.addPayment(paymentRequest);
 
         return new ResponseEntity<>(paymentResponse, HttpStatus.CREATED);
     }
+
+
+    @PatchMapping("/updatePayment")
+    public ResponseEntity<?> updatePayment(@RequestBody PaymentRequest paymentRequest) {
+
+
+        PaymentResponse paymentResponse = paymentService.updatePayment(paymentRequest);
+
+        return new ResponseEntity<>(paymentResponse, HttpStatus.OK);
+    }
+
 }
