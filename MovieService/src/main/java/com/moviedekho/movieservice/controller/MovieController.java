@@ -145,4 +145,17 @@ public class MovieController {
         return ResponseEntity.ok(movies);
     }
 
+    @GetMapping("/searchMovieByTitle")
+    @PreAuthorize("hasRole('ROLE_USER') or hasRole('ROLE_ADMIN')")
+    public ResponseEntity<List<MovieDocument>> searchMovieByTitle(@RequestParam(value = "title", required = true) String title) {
+
+        List<MovieDocument> movies = movieService.searchByTitle(title);
+        if (movies == null || movies.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyList());
+        }
+        return ResponseEntity.ok(movies);
+    }
+
+
+
 }

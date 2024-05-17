@@ -1,28 +1,34 @@
 package com.moviedekho.userservie.serviceimpl;
 
+import com.moviedekho.userservie.config.MovieServiceClient;
 import com.moviedekho.userservie.config.PaymentServiceClient;
+import com.moviedekho.userservie.entity.FavoriteMovieEntity;
 import com.moviedekho.userservie.entity.RoleEntity;
 import com.moviedekho.userservie.entity.UserEntity;
 import com.moviedekho.userservie.enums.RoleName;
 import com.moviedekho.userservie.enums.SubscriptionPlan;
 import com.moviedekho.userservie.exception.UserAlreadyExistsException;
+import com.moviedekho.userservie.model.request.FavoriteMovieRequest;
 import com.moviedekho.userservie.model.request.PaymentRequest;
 import com.moviedekho.userservie.model.request.UserRequest;
+import com.moviedekho.userservie.model.response.FavoriteMovieResponse;
+import com.moviedekho.userservie.model.response.MovieDocument;
 import com.moviedekho.userservie.model.response.UserLoginResponse;
 import com.moviedekho.userservie.model.response.UserResponse;
+import com.moviedekho.userservie.repository.FavoriteMovieRepository;
 import com.moviedekho.userservie.repository.RoleRepository;
 import com.moviedekho.userservie.repository.UserRepository;
 import com.moviedekho.userservie.service.UserService;
 import com.moviedekho.userservie.utils.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,6 +48,14 @@ public class UserServiceImpl implements UserService {
 
     @org.springframework.beans.factory.annotation.Autowired(required = true)
     private PaymentServiceClient paymentServiceClient;
+
+    @Autowired(required = true)
+    private MovieServiceClient movieServiceClient;
+
+    @Autowired
+    private FavoriteMovieRepository favoriteMovieRepository;
+
+
 
 
     @Override
@@ -179,6 +193,64 @@ public class UserServiceImpl implements UserService {
         return createUserLoginResponse(null, userEntity);
 
     }
+
+    @Override
+    public FavoriteMovieResponse addFavoriteMovie(FavoriteMovieRequest userFavoriteMovie) throws Exception {
+
+        if (favoriteMovieRepository.existsByFavoriteMovie(userFavoriteMovie.getMovieTitle())) {
+            throw new Exception("Movie Already Added");
+        }
+
+
+        ResponseEntity<?> response = movieServiceClient.searchMovieByTitle(userFavoriteMovie.getMovieTitle());
+        if (response.getStatusCode().is4xxClientError()) {
+            throw new Exception("No Movie Found");
+        }
+
+
+        if (response.getBody() == null) {
+            throw new Exception("No Movie Found");
+        }
+
+        // Create and save the new favorite movie entity
+        FavoriteMovieEntity favoriteMovieEntity = new FavoriteMovieEntity();
+        favoriteMovieEntity.setUsername(userFavoriteMovie.getUsername());
+        favoriteMovieEntity.setFavoriteMovie(userFavoriteMovie.getMovieTitle());
+
+        FavoriteMovieEntity savedEntity = favoriteMovieRepository.save(favoriteMovieEntity);
+        if (savedEntity == null) {
+            throw new Exception("Failed to save the movie");
+        }
+
+        // Prepare and return the response
+        FavoriteMovieResponse favoriteMovieResponse = new FavoriteMovieResponse();
+        favoriteMovieResponse.setUsername(savedEntity.getUsername());
+        favoriteMovieResponse.setFavoriteMovies(Collections.singletonList(savedEntity.getFavoriteMovie()));
+        favoriteMovieResponse.setMessage("Movie Added Successfully");
+
+        return favoriteMovieResponse;
+    }
+
+    @Override
+    public ResponseEntity<List<MovieDocument>> getFavoriteMovies(String username) {
+
+        List<String> movieTitles = favoriteMovieRepository.findMovieTitlesByUsername(username);
+
+
+        List<MovieDocument> movies = movieTitles.stream()
+                .map(title -> {
+                    ResponseEntity<?> response = movieServiceClient.searchMovieByTitle(title);
+                    if (response.getStatusCode().is2xxSuccessful() && response.getBody() instanceof List) {
+                        return ((List<MovieDocument>) response.getBody()).get(0);
+                    }
+                    return null;
+                })
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+
+        return ResponseEntity.ok(movies);
+    }
+
 
     private UserLoginResponse createUserLoginResponse(String jwtToken, UserEntity userEntity) {
 

@@ -1,9 +1,15 @@
 package com.moviedekho.userservie.service;
 
 
+import com.moviedekho.userservie.model.request.FavoriteMovieRequest;
 import com.moviedekho.userservie.model.request.UserRequest;
+import com.moviedekho.userservie.model.response.FavoriteMovieResponse;
+import com.moviedekho.userservie.model.response.MovieDocument;
 import com.moviedekho.userservie.model.response.UserLoginResponse;
 import com.moviedekho.userservie.model.response.UserResponse;
+import org.springframework.http.ResponseEntity;
+
+import java.util.List;
 
 public interface UserService {
 
@@ -14,4 +20,8 @@ public interface UserService {
     UserLoginResponse getUserDetails(String username);
 
     UserLoginResponse updateUserDetails(UserRequest user) throws Exception;
+
+    FavoriteMovieResponse addFavoriteMovie(FavoriteMovieRequest userFavoriteMovie) throws Exception;
+
+    ResponseEntity<List<MovieDocument>> getFavoriteMovies(String username);
 }

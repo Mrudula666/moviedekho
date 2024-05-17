@@ -25,6 +25,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/login").permitAll()
                         .requestMatchers("/api/auth/users/*/details").permitAll()
                         .requestMatchers("/api/auth/updateUserDetails").permitAll()
+                        .requestMatchers("/api/auth/addUserFavoriteMovie").permitAll()
+                        .requestMatchers("/api/auth/getFavoriteMovies/*").permitAll()
                         .anyRequest().authenticated()
                 ).httpBasic(withDefaults());
 

@@ -32,11 +32,12 @@ public interface MovieService {
 
     List<MovieDocument> searchByYearOfRelease(Integer yearOfRelease);
 
-    List<MovieDocument> searchByTitle(String title);
 
     MovieResponse updateMovie(MovieRequest updateMovieRequest) throws Exception;
 
     List<MovieDocument> searchByCriteria(String actor, Integer yearOfRelease, String title);
+
+    List<MovieDocument> searchByTitle(String title);
 
     GenericResponse deleteMovieByTitle(String title);
 }

@@ -1,8 +1,11 @@
 package com.moviedekho.userservie.controller;
 
 
+import com.moviedekho.userservie.model.request.FavoriteMovieRequest;
 import com.moviedekho.userservie.model.request.UserLoginRequest;
 import com.moviedekho.userservie.model.request.UserRequest;
+import com.moviedekho.userservie.model.response.FavoriteMovieResponse;
+import com.moviedekho.userservie.model.response.MovieDocument;
 import com.moviedekho.userservie.model.response.UserLoginResponse;
 import com.moviedekho.userservie.model.response.UserResponse;
 import com.moviedekho.userservie.service.UserService;
@@ -10,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -39,5 +44,15 @@ public class AuthController {
     @PatchMapping("/updateUserDetails")
     private UserLoginResponse updateUserDetails(@RequestBody UserRequest user) throws Exception {
         return userService.updateUserDetails(user);
+    }
+
+    @PostMapping("/addUserFavoriteMovie")
+    private FavoriteMovieResponse addFavoriteMovies(@RequestBody FavoriteMovieRequest userFavoriteMovie) throws Exception {
+        return userService.addFavoriteMovie(userFavoriteMovie);
+    }
+
+    @GetMapping("/getFavoriteMovies/{username}")
+    private ResponseEntity<List<MovieDocument>> getFavoriteMovies(@PathVariable("username") String username) throws Exception {
+        return userService.getFavoriteMovies(username);
     }
 }
