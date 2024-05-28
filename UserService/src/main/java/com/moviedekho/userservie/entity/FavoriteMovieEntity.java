@@ -19,4 +19,7 @@ public class FavoriteMovieEntity {
 
     @Column(name = "favoriteMovie")
     private String favoriteMovie;
+
+    @Column(name = "isFavorited")
+    private boolean isFavorited;
 }

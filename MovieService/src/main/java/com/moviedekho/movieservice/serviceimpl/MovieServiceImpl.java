@@ -1,8 +1,10 @@
 package com.moviedekho.movieservice.serviceimpl;
 
 import com.mongodb.DuplicateKeyException;
+import com.moviedekho.movieservice.client.UserServiceClient;
 import com.moviedekho.movieservice.document.MovieDocument;
 import com.moviedekho.movieservice.exceptions.MovieAlreadyExistsException;
+import com.moviedekho.movieservice.model.request.FavoriteMovieEntity;
 import com.moviedekho.movieservice.model.request.MovieRequest;
 import com.moviedekho.movieservice.model.response.GenericResponse;
 import com.moviedekho.movieservice.model.response.MovieResponse;
@@ -13,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -31,6 +34,9 @@ public class MovieServiceImpl implements MovieService {
 
     @Autowired
     private GridFSService gridFSService;
+
+    @Autowired
+    private UserServiceClient userServiceClient;
 
 
     @Override
@@ -95,7 +101,9 @@ public class MovieServiceImpl implements MovieService {
         if (!isValidRequest(movieRequest)) {
             throw new MovieAlreadyExistsException("A movie with the given details already exists.");
         }
+        isMovieFavorated(movieRequest);
         MovieDocument movieDocument = mapMovieDocument(movieRequest);
+
         MovieDocument savedDocument;
         try {
             savedDocument = movieRepository.save(movieDocument);
@@ -105,6 +113,25 @@ public class MovieServiceImpl implements MovieService {
         } catch (Exception e) {
             throw new RuntimeException("Failed to save movie: " + e.getMessage(), e);
         }
+    }
+
+    private void isMovieFavorated(MovieRequest movieRequest) {
+
+        ResponseEntity<FavoriteMovieEntity> favoriteMovie  = userServiceClient.searchMovieByUsernameAndTitle(movieRequest.getUsername(),
+                movieRequest.getTitle());
+        if (favoriteMovie.getStatusCode().is2xxSuccessful() && favoriteMovie.getBody() != null) {
+            FavoriteMovieEntity favoriteMovieEntity = favoriteMovie.getBody();
+
+            if (favoriteMovieEntity.isFavorited()) {
+                movieRequest.setFavorited(true);
+            } else {
+                movieRequest.setFavorited(false);
+            }
+        } else {
+            movieRequest.setFavorited(false);
+        }
+
+
     }
 
     private boolean isValidRequest(MovieRequest movieRequest) {
@@ -135,6 +162,7 @@ public class MovieServiceImpl implements MovieService {
         movieDocument.setRating(movieRequest.getRating());
         movieDocument.setStreamLink(movieRequest.getStreamLink());
         movieDocument.setMoviePoster(movieRequest.getMoviePoster());
+        movieDocument.setFavorited(movieRequest.isFavorited());
         // Store the MP4 file and get its GridFS ID
         String videoFileId = gridFSService.storeFile(movieRequest.getVideoFile());
         movieDocument.setVideoFileId(videoFileId);

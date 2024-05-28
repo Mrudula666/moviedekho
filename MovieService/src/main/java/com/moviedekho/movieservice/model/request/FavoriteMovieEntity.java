@@ -6,17 +6,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 @Getter
 @Setter
-public class MovieRequest {
+public class FavoriteMovieEntity {
 
 
     private String title;
-    private String actors;
-    private String genre;
-    private Integer yearOfRelease;
-    private String rating;
-    private String streamLink;
-    private String moviePoster;
-    private MultipartFile videoFile;
     private boolean isFavorited;
     private String username;
 

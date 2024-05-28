@@ -197,8 +197,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public FavoriteMovieResponse addFavoriteMovie(FavoriteMovieRequest userFavoriteMovie) throws Exception {
 
+        FavoriteMovieResponse favoriteMovieResponse = new FavoriteMovieResponse();
+
         if (favoriteMovieRepository.existsByFavoriteMovie(userFavoriteMovie.getMovieTitle())) {
-            throw new Exception("Movie Already Added");
+            favoriteMovieResponse.setMessage("Movie Already Added");
+            return favoriteMovieResponse;
         }
 
 
@@ -216,6 +219,7 @@ public class UserServiceImpl implements UserService {
         FavoriteMovieEntity favoriteMovieEntity = new FavoriteMovieEntity();
         favoriteMovieEntity.setUsername(userFavoriteMovie.getUsername());
         favoriteMovieEntity.setFavoriteMovie(userFavoriteMovie.getMovieTitle());
+        favoriteMovieEntity.setFavorited(userFavoriteMovie.isFavorited());
 
         FavoriteMovieEntity savedEntity = favoriteMovieRepository.save(favoriteMovieEntity);
         if (savedEntity == null) {
@@ -223,7 +227,6 @@ public class UserServiceImpl implements UserService {
         }
 
         // Prepare and return the response
-        FavoriteMovieResponse favoriteMovieResponse = new FavoriteMovieResponse();
         favoriteMovieResponse.setUsername(savedEntity.getUsername());
         favoriteMovieResponse.setFavoriteMovies(Collections.singletonList(savedEntity.getFavoriteMovie()));
         favoriteMovieResponse.setMessage("Movie Added Successfully");
@@ -250,6 +253,44 @@ public class UserServiceImpl implements UserService {
 
         return ResponseEntity.ok(movies);
     }
+
+    @Override
+    public FavoriteMovieResponse removeFavoriteMovie(String username, String title) throws Exception {
+
+        // Check if the movie exists
+        ResponseEntity<?> response = movieServiceClient.searchMovieByTitle(title);
+        if (response.getStatusCode().is4xxClientError() || response.getBody() == null) {
+            throw new Exception("No Movie Found");
+        }
+
+        // Find the favorite movie entity
+        Optional<FavoriteMovieEntity> favoriteMovieEntityOptional = favoriteMovieRepository.findByUsernameAndFavoriteMovie(username, title);
+        if (favoriteMovieEntityOptional.isEmpty()) {
+            throw new Exception("Movie not found in user's favorites");
+        }
+
+        // Delete the favorite movie entity
+        favoriteMovieRepository.delete(favoriteMovieEntityOptional.get());
+
+        // Prepare and return the response
+        FavoriteMovieResponse favoriteMovieResponse = new FavoriteMovieResponse();
+        favoriteMovieResponse.setUsername(username);
+        favoriteMovieResponse.setMessage("Movie Deleted Successfully");
+        return favoriteMovieResponse;
+    }
+
+    @Override
+    public ResponseEntity<FavoriteMovieEntity> getFavoriteMovieByTitle(String username, String title) {
+        Optional<FavoriteMovieEntity> favoriteMovieEntityOptional = favoriteMovieRepository.
+                findByUsernameAndFavoriteMovie(username, title);
+        if (favoriteMovieEntityOptional.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+        FavoriteMovieEntity favoriteMovieEntity = favoriteMovieEntityOptional.get();
+
+        return ResponseEntity.ok(favoriteMovieEntity);
+    }
+
 
 
     private UserLoginResponse createUserLoginResponse(String jwtToken, UserEntity userEntity) {

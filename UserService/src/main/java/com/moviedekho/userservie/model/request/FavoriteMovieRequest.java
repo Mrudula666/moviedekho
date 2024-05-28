@@ -9,4 +9,5 @@ public class FavoriteMovieRequest {
 
     private String movieTitle;
     private String username;
+    private boolean isFavorited;
 }

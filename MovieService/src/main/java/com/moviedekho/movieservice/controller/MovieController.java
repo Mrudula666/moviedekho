@@ -156,6 +156,4 @@ public class MovieController {
         return ResponseEntity.ok(movies);
     }
 
-
-
 }

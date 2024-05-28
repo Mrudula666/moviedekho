@@ -16,4 +16,5 @@ public class MovieDocument {
     private String streamLink;
     private String moviePoster;
     private String videoFileId;
+    private String isFavorited;
 }

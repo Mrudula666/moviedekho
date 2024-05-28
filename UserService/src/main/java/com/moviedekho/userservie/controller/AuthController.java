@@ -1,6 +1,7 @@
 package com.moviedekho.userservie.controller;
 
 
+import com.moviedekho.userservie.entity.FavoriteMovieEntity;
 import com.moviedekho.userservie.model.request.FavoriteMovieRequest;
 import com.moviedekho.userservie.model.request.UserLoginRequest;
 import com.moviedekho.userservie.model.request.UserRequest;
@@ -51,8 +52,19 @@ public class AuthController {
         return userService.addFavoriteMovie(userFavoriteMovie);
     }
 
+    @DeleteMapping("/removeFavoriteMovie")
+    private FavoriteMovieResponse deleteFavoriteMovies(@RequestParam String username, @RequestParam String title) throws Exception {
+        return userService.removeFavoriteMovie(username, title);
+    }
+
     @GetMapping("/getFavoriteMovies/{username}")
     private ResponseEntity<List<MovieDocument>> getFavoriteMovies(@PathVariable("username") String username) throws Exception {
         return userService.getFavoriteMovies(username);
+    }
+
+    @GetMapping("/getFavoriteMovieByTitle/{username}/{title}")
+    private ResponseEntity<FavoriteMovieEntity> getFavoriteMovieByTitle(@PathVariable("username") String username
+    , @PathVariable("title") String title) throws Exception {
+        return userService.getFavoriteMovieByTitle(username, title);
     }
 }

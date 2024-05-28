@@ -1,6 +1,7 @@
 package com.moviedekho.userservie.service;
 
 
+import com.moviedekho.userservie.entity.FavoriteMovieEntity;
 import com.moviedekho.userservie.model.request.FavoriteMovieRequest;
 import com.moviedekho.userservie.model.request.UserRequest;
 import com.moviedekho.userservie.model.response.FavoriteMovieResponse;
@@ -24,4 +25,8 @@ public interface UserService {
     FavoriteMovieResponse addFavoriteMovie(FavoriteMovieRequest userFavoriteMovie) throws Exception;
 
     ResponseEntity<List<MovieDocument>> getFavoriteMovies(String username);
+
+    FavoriteMovieResponse removeFavoriteMovie(String username, String title) throws Exception;
+
+    ResponseEntity<FavoriteMovieEntity> getFavoriteMovieByTitle(String username, String title);
 }
